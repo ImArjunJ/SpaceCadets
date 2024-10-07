@@ -26,7 +26,7 @@ This is almost done, from this piped output into a string, we need to convert th
 
 # Showcase
 
-This might be impossible to get working on many machines without knowledge of how it works, or without low level experience, hence I have created a showcase video to simplify the process and save you the headaches.
+This might be impossible to get working on many machines without knowledge of how it works, or without low level experience, hence I have created a [showcase video](https://streamable.com/x7zl71) to simplify the process and save you the headaches.
 
 <video src="https://github.com/ImArjunJ/SpaceCadets/raw/refs/heads/master/SCChallenge1.1/img/showcase.mp4"></video>
 
