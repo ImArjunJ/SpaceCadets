@@ -28,7 +28,7 @@ This is almost done, from this piped output into a string, we need to convert th
 
 This might be impossible to get working on many machines without knowledge of how it works, or without low level experience, hence I have created a showcase video to simplify the process and save you the headaches.
 
-![Showcase Video](https://streamable.com/e/x7zl71)
+<video src="https://github.com/ImArjunJ/SpaceCadets/raw/refs/heads/master/SCChallenge1.1/img/showcase.mp4"></video>
 
 Another thing that you will notice is the fact that a console appears. Once again, this is NOT a separate executable. This is all done IN the notepad.exe executable abusing `AllocConsole` and friends to attach a console and redirect console out and input, hence allowing the user to input a user-id to fetch.
 
