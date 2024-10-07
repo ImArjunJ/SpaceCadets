@@ -62,7 +62,7 @@ IAT Hooking is when we modify these addresses to our own needs. In my case I mod
 
 - Restore the Original Function (or just dont?): You can store the original function pointer so you can call the original function from your hook if needed, hence returning the flow back to the original IAT function which the process intended to use
 
-IAT Hooking Example:
+# IAT Hooking Example Implementation:
 
 Once again, if you care about the low-level stuff heres an example showing exactly how its implemented. If you don't understand anything feel free to ask me irl or on discord. I don't mind
 
