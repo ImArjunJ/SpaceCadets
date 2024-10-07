@@ -61,3 +61,77 @@ IAT Hooking is when we modify these addresses to our own needs. In my case I mod
 - Modify the IAT Entry: Once the target function is found, you replace its address in the IAT with the address of your custom function. This allows you to intercept the call and redirect it to your hook.
 
 - Restore the Original Function (or just dont?): You can store the original function pointer so you can call the original function from your hook if needed, hence returning the flow back to the original IAT function which the process intended to use
+
+IAT Hooking Example:
+
+Once again, if you care about the low-level stuff heres an example showing exactly how its implemented. If you don't understand anything feel free to ask me irl or on discord. I don't mind
+
+```c++
+void HookIAT(const char* DllName, const char* FunctionName, void* HookFunction, void** OriginalFunction)
+{
+    // Retrieve the current module handle (the .exe or .dll currently running)
+    const HMODULE CurrentModule = GetModuleHandle(nullptr);
+    if (!CurrentModule)
+    {
+        throw std::runtime_error("Failed to get module handle");
+    }
+
+    // Get the DOS header to locate the PE header
+    PIMAGE_DOS_HEADER DosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(CurrentModule);
+
+    // From DOS header, get NT headers
+    PIMAGE_NT_HEADERS NtHeader = reinterpret_cast<PIMAGE_NT_HEADERS>(reinterpret_cast<BYTE*>(CurrentModule) + DosHeader->e_lfanew);
+
+    // Get the import directory from the NT headers
+    PIMAGE_IMPORT_DESCRIPTOR ImportDescriptor =
+        reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(reinterpret_cast<BYTE*>(CurrentModule) + NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+
+    // Iterate through the import directory
+    while (ImportDescriptor->Name)
+    {
+        const char* importedModuleName = reinterpret_cast<const char*>(reinterpret_cast<BYTE*>(CurrentModule) + ImportDescriptor->Name);
+
+        // Check if the current module is the one we want to hook
+        if (_stricmp(importedModuleName, DllName) == 0)
+        {
+            // Found the correct module; get the FirstThunk which is the IAT we are looking for
+            PIMAGE_THUNK_DATA CurrentThunk = reinterpret_cast<PIMAGE_THUNK_DATA>(reinterpret_cast<BYTE*>(CurrentModule) + ImportDescriptor->FirstThunk);
+
+            // Iterate through the IAT to find the function we want to hook
+            while (CurrentThunk->u1.Function)
+            {
+                FARPROC* CurrentFunction = reinterpret_cast<FARPROC*>(&CurrentThunk->u1.Function);
+
+                // Check if this is the function we are trying to hook
+                if (*CurrentFunction == GetProcAddress(GetModuleHandleA(DllName), FunctionName))
+                {
+                    // Modify the IAT entry, but first change memory region protection to allow writing
+                    DWORD OldProtect;
+                    if (!VirtualProtect(CurrentFunction, sizeof(LPVOID), PAGE_EXECUTE_READWRITE, &OldProtect))
+                    {
+                        throw std::runtime_error("Failed to change memory region's protection");
+                    }
+
+                    // Save the original function pointer
+                    *OriginalFunction = reinterpret_cast<void*>(*CurrentFunction);
+
+                    // Replace the original function pointer with our hook function
+                    *CurrentFunction = reinterpret_cast<FARPROC>(HookFunction);
+
+                    // Restore the original memory protection
+                    if (!VirtualProtect(CurrentFunction, sizeof(LPVOID), OldProtect, &OldProtect))
+                    {
+                        throw std::runtime_error("Failed to restore memory region's protection");
+                    }
+                    return;
+                }
+                ++CurrentThunk;
+            }
+        }
+        ++ImportDescriptor;
+    }
+    throw std::runtime_error("Function not found in IAT");
+}
+```
+
+I hope this helps, it most likely won't but for the few that actually like this stuff, hi :D
