@@ -11,10 +11,10 @@
 std::string Trim(const std::string& Input)
 {
     const std::string Whitespace = " \t\n\r\f";
-    size_t Start = Input.find_first_not_of(Whitespace);
+    const size_t Start = Input.find_first_not_of(Whitespace);
     if (Start == std::string::npos)
         return "";
-    size_t End = Input.find_last_not_of(Whitespace);
+    const size_t End = Input.find_last_not_of(Whitespace);
     return Input.substr(Start, End - Start + 1);
 }
 
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     {
         PersonId = PersonId.substr(0, PersonId.find("@"));
     }
-    cpr::Response r = cpr::Get(cpr::Url{std::format("https://www.ecs.soton.ac.uk/people/{}", PersonId)});
+    const cpr::Response r = cpr::Get(cpr::Url{std::format("https://www.ecs.soton.ac.uk/people/{}", PersonId)});
 
     if (r.status_code != 200)
     {
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     HtmlParser::Parser Parser;
     Parser.SetStrict(false); // Disable strict mode to be more forgiving
 
-    HtmlParser::DOM Document = Parser.Parse(r.text);
+    const HtmlParser::DOM Document = Parser.Parse(r.text);
 
     if (Document.Root() == nullptr)
     {
@@ -50,9 +50,9 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    HtmlParser::Query Query(Document.Root());
+    const HtmlParser::Query Query(Document.Root());
 
-    auto Name = Query.SelectFirst("h1.heading-m.inline-block.text-prussianDark");
+    const auto Name = Query.SelectFirst("h1.heading-m.inline-block.text-prussianDark");
 
     if (!Name)
     {
@@ -60,12 +60,12 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    auto TitleNode = Query.SelectFirst("div.pb-6.text-xl");
-    auto AboutNode = Query.SelectFirst("section.sidetabs-section.mb-25");
-    auto TabBar = Query.SelectFirst("div[role='tablist']");
+    const auto TitleNode = Query.SelectFirst("div.pb-6.text-xl");
+    const auto AboutNode = Query.SelectFirst("section.sidetabs-section.mb-25");
+    const auto TabBar = Query.SelectFirst("div[role='tablist']");
 
-    std::string Title = TitleNode == nullptr ? "Not Found" : TitleNode->GetTextContent();
-    std::string About = AboutNode == nullptr ? "Not Found" : AboutNode->GetTextContent();
+    const std::string Title = TitleNode == nullptr ? "Not Found" : TitleNode->GetTextContent();
+    const std::string About = AboutNode == nullptr ? "Not Found" : AboutNode->GetTextContent();
 
     std::cout << "  Name: " << Name->GetTextContent() << "\n";
     std::cout << "  Title: " << Title << "\n";
