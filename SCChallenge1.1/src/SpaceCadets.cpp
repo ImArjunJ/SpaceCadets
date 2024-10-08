@@ -89,6 +89,8 @@ namespace SpaceCadets
                 std::cout << "User Id > ";
                 std::string UserId;
                 std::cin >> UserId;
+
+                SetForegroundWindow(hWnd);
                 std::string Command = "SCChallenge1.exe " + UserId;
 
                 try
