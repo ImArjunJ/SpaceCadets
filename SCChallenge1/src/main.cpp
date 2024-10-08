@@ -90,9 +90,9 @@ int main(int argc, char** argv)
             if (Email.empty())
                 continue;
 
-            if (Email.find(ToLower(argv[1])) != std::string::npos)
+            if (Email.find(ToLower(argv[1])) != std::string::npos || Email.find(ToLower(PersonId)) != std::string::npos)
             {
-                /*
+                /*ssss
                 <td>
                 <span class="js-tableSort-name" style="display:none">Rogers,Eric</span>
                 <a href="/people/er">Professor Eric Rogers</a>
