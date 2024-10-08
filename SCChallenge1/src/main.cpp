@@ -18,6 +18,13 @@ std::string Trim(const std::string& Input)
     return Input.substr(Start, End - Start + 1);
 }
 
+std::string ToLower(const std::string& Input)
+{
+    std::string Result = Input;
+    std::transform(Result.begin(), Result.end(), Result.begin(), [](unsigned char c) { return std::tolower(c); });
+    return Result;
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
@@ -31,7 +38,7 @@ int main(int argc, char** argv)
     {
         PersonId = PersonId.substr(0, PersonId.find("@"));
     }
-    const cpr::Response r = cpr::Get(cpr::Url{std::format("https://www.ecs.soton.ac.uk/people/{}", PersonId)});
+    cpr::Response r = cpr::Get(cpr::Url{std::format("https://www.ecs.soton.ac.uk/people/{}", PersonId)});
 
     if (r.status_code != 200)
     {
@@ -42,7 +49,7 @@ int main(int argc, char** argv)
     HtmlParser::Parser Parser;
     Parser.SetStrict(false); // Disable strict mode to be more forgiving
 
-    const HtmlParser::DOM Document = Parser.Parse(r.text);
+    HtmlParser::DOM Document = Parser.Parse(r.text);
 
     if (Document.Root() == nullptr)
     {
@@ -50,19 +57,90 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    const HtmlParser::Query Query(Document.Root());
+    HtmlParser::Query Query(Document.Root());
 
-    const auto Name = Query.SelectFirst("h1.heading-m.inline-block.text-prussianDark");
+    auto Name = Query.SelectFirst("h1.heading-m.inline-block.text-prussianDark");
 
     if (!Name)
     {
-        std::cerr << "This user's profile does not seem to be public, or their email does not match the id" << std::endl;
-        return 1;
+        // try and find /people/{} code from email if not found initially
+        r = cpr::Get(cpr::Url{"https://www.ecs.soton.ac.uk/people/placeholder"});
+
+        if (r.status_code != 200)
+        {
+            std::cerr << "Failed to fetch the page" << std::endl;
+            return 1;
+        }
+
+        Document = Parser.Parse(r.text);
+        Query = HtmlParser::Query(Document.Root());
+        auto List = Query.SelectFirst("tbody.list");
+        if (!List)
+        {
+            std::cerr << "Failed to find the list" << std::endl;
+            return 1;
+        }
+
+        for (const auto& Row : List->Children)
+        {
+            if (Row->Children.size() != 4)
+                continue;
+
+            const auto Email = ToLower(Row->Children[3]->GetTextContent());
+            if (Email.empty())
+                continue;
+
+            if (Email.find(ToLower(argv[1])) != std::string::npos)
+            {
+                /*
+                <td>
+                <span class="js-tableSort-name" style="display:none">Rogers,Eric</span>
+                <a href="/people/er">Professor Eric Rogers</a>
+                </td>
+                */
+                const auto EmailTdNode = Row->Children[0];
+                if (EmailTdNode->Children.size() != 2)
+                    continue;
+                const auto Link = EmailTdNode->Children[1]->GetAttribute("href");
+                if (Link.empty())
+                    continue;
+
+                PersonId = Link.substr(8);
+                r = cpr::Get(cpr::Url{std::format("https://www.ecs.soton.ac.uk/people/{}", PersonId)});
+
+                if (r.status_code != 200)
+                {
+                    std::cerr << "Failed to fetch the page" << std::endl;
+                    return 1;
+                }
+
+                Document = Parser.Parse(r.text);
+
+                if (Document.Root() == nullptr)
+                {
+                    std::cerr << "Failed to parse the page" << std::endl;
+                    return 1;
+                }
+
+                Query = HtmlParser::Query(Document.Root());
+                Name = Query.SelectFirst("h1.heading-m.inline-block.text-prussianDark");
+                break;
+            }
+        }
+
+        if (!Name)
+        {
+            std::cerr << "Failed to find the person" << std::endl;
+            return 1;
+        }
     }
 
     const auto TitleNode = Query.SelectFirst("div.pb-6.text-xl");
-    const auto AboutNode = Query.SelectFirst("section.sidetabs-section.mb-25");
+    auto AboutNode = Query.SelectFirst("section.sidetabs-section.mb-25");
     const auto TabBar = Query.SelectFirst("div[role='tablist']");
+
+    if (Query.SelectFirst("section#about") == nullptr)
+        AboutNode = nullptr;
 
     const std::string Title = TitleNode == nullptr ? "Not Found" : TitleNode->GetTextContent();
     const std::string About = AboutNode == nullptr ? "Not Found" : AboutNode->GetTextContent();

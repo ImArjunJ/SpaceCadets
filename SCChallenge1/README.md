@@ -2,16 +2,20 @@
 
 [Challenge Reference](https://secure.ecs.soton.ac.uk/student/wiki/w/COMP1202/Space_Cadets/SCChallengeEmail)
 
-Usage:
+Unlike most other solutions, this has a fallback procedure in case the input is not originally recognised. For example, the user `M.Wald@soton.ac.uk` actually has a person id of `mw3`. Hence initially when `m.wald` does not work, it will search the people directory with any matching emails and then retrieve their person id.
+
+This, however obviously has a performance overhead.
+
+# Usage:
 
 `.\build\SCChallenge1 <PersonId>`
 
-Examples:
+# Examples:
 
 - `.\build\SCChallenge1 dem@soton.ac.uk`
 - `.\build\SCChallenge1 dbt1c21`
 
-Output Example:
+# Output Example:
 
 ```
   Name: Professor David Millard
