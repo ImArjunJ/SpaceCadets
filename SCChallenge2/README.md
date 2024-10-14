@@ -4,6 +4,20 @@
 
 This is an operating system designed to run the Bare Bones language outlined in [Computer Science: An Overview](http://www.amazon.co.uk/Computer-Science-Overview-Glenn-Brookshear/dp/0321544285/ref=sr_1_1?ie=UTF8&s=books&qid=1225741559&sr=8-1).
 
+# Showcase
+
+## Basic Counter
+
+![Basic Counter](2.png)
+
+## Multiplication Program
+
+![Multiplication Program](1.png)
+
+## Basic Counter with DEBUG=1
+
+![Basic Counter / Debug](3.png)
+
 # Compilation
 
 To compile this, use make. I tested this on wsl but im sure you can figure it out if you care enough.

@@ -21,7 +21,7 @@
 
 #define VIDEO_MEMORY (char*) 0xb8000
 #define SCREEN_WIDTH 80
-#define SCREEN_HEIGHT 40
+#define SCREEN_HEIGHT 25
 
 void clear_screen();
 void scroll_screen();
