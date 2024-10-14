@@ -8,15 +8,15 @@ This is an operating system designed to run the Bare Bones language outlined in 
 
 ## Basic Counter
 
-![Basic Counter](2.png)
+![Basic Counter](img/2.png)
 
 ## Multiplication Program
 
-![Multiplication Program](1.png)
+![Multiplication Program](img/1.png)
 
 ## Basic Counter with DEBUG=1
 
-![Basic Counter / Debug](3.png)
+![Basic Counter / Debug](img/3.png)
 
 # Compilation
 
