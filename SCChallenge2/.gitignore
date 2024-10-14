@@ -1,0 +1,6 @@
+build/
+*.bin
+
+# Visual Studio Code specific files
+.vscode/
+.cache/
