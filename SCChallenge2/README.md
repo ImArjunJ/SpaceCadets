@@ -8,6 +8,8 @@ The idea is this can run on basically any form of embedded system, given it does
 
 The output display for this is VGA. I could change it to a monochrome display and be able to run this OS on a very small machine, which I should probably do at some point.
 
+In terms of the actual interpreter, it tokenizes each line and separates via an enum into each type of instruction. Although out of everything that was the most trivial part of the project lol. This system should allow me to improve the interpreter should further challenges require though.
+
 Overall, this was pretty fun to make, around ~1200 lines of code.
 
 If you have any questions, let me know, although I doubt it.
